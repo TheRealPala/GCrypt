@@ -2,6 +2,7 @@
 #include <time.h>
 #include <string.h>
 using namespace std;
+
 void provaReadParam(int argc, char** argv){
     cout << "numero parameri: " << argc; 
     cout << "\nStampa: ";
@@ -9,12 +10,12 @@ void provaReadParam(int argc, char** argv){
         cout << "\n" << (i +1) << ": \t" << argv[i];
     }
 }
-int interParam(int argc, char** argv){
+
+void interParam(int argc, char** argv, char** param){
     char* file = NULL;
     char* chiave = NULL;    
     if(argc < 5){
         cout << "Errore nell'inserimento dei parametri!";
-        return -1;
     }
     else{
         for(int i = 1; i < argc; ++i){
@@ -31,11 +32,15 @@ int interParam(int argc, char** argv){
         strcpy(file, "File non inserito");
     if(*chiave == NULL)
         strcpy(chiave, "Chiave non inserita");
-    cout << "\nFile: \t" << file;
-    cout << "\nChiave: \t" << chiave ;
+    
+    param[0] = chiave;
+    param[1] = file;
 }
+
 int main(int argc, char** argv){
-    provaReadParam(argc, argv);
-    interParam(argc, argv);
+    char** param = new char* [2];
+    interParam(argc, argv, param);
+    cout << "\nFile: " << param[0];
+    cout << "\nChiave: " << param[1] ;
     return 0;
 }
