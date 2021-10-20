@@ -28,9 +28,9 @@ void interParam(int argc, char** argv, char** param){
         }
         
     }
-    if(*file == NULL)
+    if (*file == NULL)
         strcpy(file, "File non inserito");
-    if(*chiave == NULL)
+    if (*chiave == NULL)
         strcpy(chiave, "Chiave non inserita");
     
     param[1] = chiave;
@@ -55,9 +55,44 @@ void shift (char aShift [][26], char* alfa, char* chiave){
     }
 }
 
+int getIndex(char chr, char* str){
+   int index = -1;
+   for (int i = 0; i < strlen(str); ++i){
+       if (chr == str[i]){
+           index = i;
+           break;
+       }
+   }
+   return index; 
+}
+
+char* getStringCrypt(char* str, char aShift[][26], char* alfa, int lenkey){
+    char* cryptStr = new char[strlen(str)]; //Salvo la variabile nell'heap per evitare danni con il push/pop;
+    int inK = -1;
+    for (int i = 0; i < strlen(str); ++i){ 
+        if (str[i] == ' '){
+            cryptStr[i] = ' ';
+        }
+        else {
+            inK = (inK + 1) % lenkey; //Calcolo di quale alfabeto shiftato devo utilizzare (dopo l'utilizzo dell'ultmo devo ricominciare con il primo)
+            bool isMin = str[i] >= 'a' && str[i] <= 'z' ? true : false;
+            if (!isMin){ //costrutto per gestire lettere minuscole
+                int index = getIndex(str[i], alfa); //ottengo il numero dell'alfabeto NORMALE della iEsima lettera della stringa da cifrare
+                cryptStr[i] = aShift[inK][index];
+            }
+            else { //i - ' ' ed i + ' ' sono per gestire le lettere minuscole perchè l'alfabeto generato è tutto in maiuscolo (' ' = 32(base 10))
+                int index = getIndex(str[i] - ' ', alfa); //ottengo il numero dell'alfabeto NORMALE della iEsima lettera della stringa da cifrare
+                cryptStr[i] = aShift[inK][index] + ' ';
+            }
+        }
+    }
+    return cryptStr;
+}
+
 int main(int argc, char** argv){
     char** param = new char* [2];
     interParam(argc, argv, param);
+    //param[0]: filename |  param[1]: chiave
     cout << "\nFile: " << param[0];
     cout << "\nChiave: " << param[1];
     cout << "\nLunghezza chiave: " << strlen(param[1]);
@@ -76,5 +111,12 @@ int main(int argc, char** argv){
         }
         cout << endl;
     }
+    //Inizio prova shift
+    cout << "Inserire stringa da cifrare:" << endl;
+    char str[30];
+    cin.getline(str, 30);
+    cout << "Stringa inserita: " << str << endl ;
+    cout << "Stringa cifrata: " <<  getStringCrypt(str, alfaShift, alfa, strlen(param[1]));
+    delete(param);
     return 0;
 }
