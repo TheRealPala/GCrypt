@@ -102,11 +102,7 @@ char* getStringCrypt(char* str, char aShift[][26], char* alfa, int lenkey){
             cryptStr[i] = '\n';
         }
 
-        else if (str[i] >= ' ' && str[i] <= '/'){
-            cryptStr[i] = str[i];
-        }
-        
-        else if (str[i] >= ':' && str[i] <= '@'){
+        else if (str[i] >= ' ' && str[i] <= '@'){
             cryptStr[i] = str[i];
         }
 
@@ -147,11 +143,7 @@ char* getStringDecrypt(char* str, char aShift[][26], char* alfa, int lenkey){
             decryptStr[i] = '\n';
         }
 
-        else if (str[i] >= ' ' && str[i] <= '/'){
-            decryptStr[i] = str[i];
-        }
-        
-        else if (str[i] >= ':' && str[i] <= '@'){
+        else if (str[i] >= ' ' && str[i] <= '@'){
             decryptStr[i] = str[i];
         }
 
@@ -191,19 +183,26 @@ void cryptFile(char* filename, char aShift[][26], char* alfa, int lenkey){
     char* fileCryptName = strcat(filename, ".crypt");
     cout << "Nome del file cryptato: " << fileCryptName;
     fCrypt = fopen(fileCryptName, "w");
-    if(!fCrypt){
+    if (!fCrypt){
         cout << "Errore durante la creazione del file: " << fileCryptName << endl;
         exit(EXIT_FAILURE);
     }
     char tmp[256]; 
-    while(!feof(f)){
+    bool firstLoop = true;
+    while (!feof(f)){
         fgets(tmp, 256, f);
         char* pt = strchr(tmp, 13); //ELIMINO IL "CR" ed il "LF"
-        if(pt){
+        if (pt){
             *pt = '\0';
         }
-        char* strCrypt = getStringCrypt(tmp, aShift, alfa, lenkey);
-        fprintf(fCrypt, "%s\n", strCrypt);
+        if (strlen(tmp) > 0){
+            char* strCrypt = getStringCrypt(tmp, aShift, alfa, lenkey);
+            if(firstLoop)
+                fprintf(fCrypt, "%s", strCrypt);
+            else
+                fprintf(fCrypt, "\n%s", strCrypt);
+        }
+        firstLoop = false;
     }
     
     fclose(f);
