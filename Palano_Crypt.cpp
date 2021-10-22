@@ -63,8 +63,10 @@ void interParam(int argc, char** argv, char** param){
             exit(EXIT_FAILURE ); 
          }   
     }
-    param[1] = chiave;
+
     param[0] = file;
+    param[1] = chiave;
+   
     
 }
 
@@ -98,16 +100,33 @@ int getIndex(char chr, char* str){
 }
 
 char* getStringCrypt(char* str, char aShift[][26], char* alfa, int lenkey){
-    cout << "\nLunghezza stringa: " << strlen(str) << endl;
     char* cryptStr = new char[strlen(str) + 1]; //Salvo la variabile nell'heap per evitare danni con il push/pop;
     bzero(cryptStr, strlen(str));
     cryptStr[strlen(cryptStr)] = '\0';
     int inK = -1;
     for (int i = 0; i < strlen(str); ++i){ 
-        //Se trovo uno spazio metto uno spazio
-        if (str[i] == ' '){
-            cryptStr[i] = ' ';
+        //Gestione caratteri non contenuti nell'alfabeto
+        if (str[i] == '\n'){
+            cryptStr[i] = '\n';
         }
+
+        else if (str[i] >= ' ' && str[i] <= '/'){
+            cryptStr[i] = str[i];
+        }
+        
+        else if (str[i] >= ':' && str[i] <= '@'){
+            cryptStr[i] = str[i];
+        }
+
+        else if (str[i] >= '[' && str[i] <= 96 /*Il 96 sarebbe l'accento grave */){
+            cryptStr[i] = str[i];
+        }
+
+        else if (str[i] >= '{' && str[i] <= '~'){
+            cryptStr[i] = str[i];
+        }
+
+        //Gestione caratteri contenuti nell'alfabeto
         else {
             inK = (inK + 1) % lenkey; //Calcolo di quale alfabeto shiftato devo utilizzare (dopo l'utilizzo dell'ultmo devo ricominciare con il primo)
             bool isMin = str[i] >= 'a' && str[i] <= 'z' ? true : false;
@@ -131,10 +150,27 @@ char* getStringDecrypt(char* str, char aShift[][26], char* alfa, int lenkey){
     decryptStr[strlen(decryptStr)] = '\0';
     int inK = -1;
     for (int i = 0; i < strlen(str); ++i){ 
-        //Se trovo uno spazio metto uno spazio
-        if (str[i] == ' '){
-            decryptStr[i] = ' ';
+        //Gestione caratteri non contenuti nell'alfabeto
+        if (str[i] == '\n'){
+            decryptStr[i] = '\n';
         }
+
+        else if (str[i] >= ' ' && str[i] <= '/'){
+            decryptStr[i] = str[i];
+        }
+        
+        else if (str[i] >= ':' && str[i] <= '@'){
+            decryptStr[i] = str[i];
+        }
+
+        else if (str[i] >= '[' && str[i] <= 96 /*Il 96 sarebbe l'accento grave */){
+            decryptStr[i] = str[i];
+        }
+
+        else if (str[i] >= '{' && str[i] <= '~'){
+            decryptStr[i] = str[i];
+        }
+        //Gestione caratteri contenuti nell'alfabeto
         else {
             inK = (inK + 1) % lenkey; //Calcolo di quale alfabeto shiftato devo utilizzare (dopo l'utilizzo dell'ultmo devo ricominciare con il primo)
             bool isMin = str[i] >= 'a' && str[i] <= 'z' ? true : false;
@@ -152,11 +188,43 @@ char* getStringDecrypt(char* str, char aShift[][26], char* alfa, int lenkey){
     return decryptStr;
 }
 
+void cryptFile(char* filename, char aShift[][26], char* alfa, int lenkey){
+    FILE *f;
+    f = fopen(filename, "r");
+    if (!f){
+        cout << "File specificato non trovato!\nIl programma terminera' sedutastante!\n";
+            exit(EXIT_FAILURE ); 
+    }
+    FILE *fCrypt;
+    char* fileCryptName = strcat(filename, ".crypt");
+    cout << "Nome del file cryptato: " << fileCryptName;
+    fCrypt = fopen(fileCryptName, "w");
+    if(!fCrypt){
+        cout << "Errore durante la creazione del file: " << fileCryptName << endl;
+        exit(EXIT_FAILURE);
+    }
+    char tmp[256]; 
+    while(!feof(f)){
+        fgets(tmp, 256, f);
+        char* pt = strchr(tmp, 13); //ELIMINO IL "CR" ed il "LF"
+        if(pt){
+            *pt = '\0';
+        }
+        char* strCrypt = getStringCrypt(tmp, aShift, alfa, lenkey);
+        fprintf(fCrypt, "%s\n", strCrypt);
+    }
+    
+    fclose(f);
+}
+
 int main(int argc, char** argv){
-    char** param = new char* [2];
+    if (argc < 2){
+        cout << "Parametri non inseriti!\nIl programma terminera' sedutastante!";
+        help();
+        exit(EXIT_FAILURE );
+    }
+    char** param = new char* [2]; // param[0] = nome file, param[1] = chiave
     interParam(argc, argv, param);
-    //param[0]: filename |  param[1]: chiave
-   
     cout << "\nFile: " << param[0];
     cout << "\nChiave: " << param[1];
     cout << "\nLunghezza chiave: " << strlen(param[1]);
@@ -175,7 +243,10 @@ int main(int argc, char** argv){
         }
         cout << endl;
     }
+
+    cryptFile(param[0], alfaShift, alfa, strlen(param[1]));
     //Inizio prova shift
+    /*
     cout << "Inserire stringa da cifrare:" << endl;
     char str[30];
     cin.getline(str, 30);
@@ -184,6 +255,7 @@ int main(int argc, char** argv){
     cout << "Stringa cifrata: " <<  strCrypt << endl;
     char *strDecrypt = getStringDecrypt(strCrypt, alfaShift, alfa, strlen(param[1]));
     cout << "Stringa decifrata: " <<  strDecrypt << endl;
+    */
     delete(param);
     return 0;
 }
