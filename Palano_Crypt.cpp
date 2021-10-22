@@ -4,14 +4,6 @@
 #include <stdlib.h>
 using namespace std;
 
-void provaReadParam(int argc, char** argv){
-    cout << "numero parameri: " << argc; 
-    cout << "\nStampa: ";
-    for (int i = 0; i < argc; ++i){
-        cout << "\n" << (i +1) << ": \t" << argv[i];
-    }
-}
-
 void help(){
     cout << "\n\nExample:\tPalano_Crypt.exe -f filename.txt -c 1234\n\nElenco parametri accettati:\n-f:\tNome del file da criptare\n-c:\tChiave di cifratura (LA CHIAVE DEVE ESSERE NUMERICA)\n-h:\tStampa elenco dei parametri accettati dal programma (--help viene accettato)\n";
 }
@@ -218,44 +210,18 @@ void cryptFile(char* filename, char aShift[][26], char* alfa, int lenkey){
 }
 
 int main(int argc, char** argv){
-    if (argc < 2){
+    if (argc < 2){ //Controllo che si siano passati i parametri
         cout << "Parametri non inseriti!\nIl programma terminera' sedutastante!";
         help();
         exit(EXIT_FAILURE );
     }
     char** param = new char* [2]; // param[0] = nome file, param[1] = chiave
-    interParam(argc, argv, param);
-    cout << "\nFile: " << param[0];
-    cout << "\nChiave: " << param[1];
-    cout << "\nLunghezza chiave: " << strlen(param[1]);
+    interParam(argc, argv, param); //Gestione parametri passati dall'utente
     char alfa [26];
-    initAlfa(alfa);
-    cout << "\nAlfabeto:\n";
-    for (int i = 0; i < 26; ++i){
-       printf("%c ", alfa[i]);
-    }
+    initAlfa(alfa);//Generazione alfabeto
     char alfaShift [strlen(param[1])][26]; //Tabella di tante righe quante sono le cifre della chiave e tante colonne quante le lettere dell'alfabeto
-    shift(alfaShift, alfa, param[1]);
-    cout << "\nLista Alfabeti modificati: \n\n";
-    for (int i = 0; i < strlen(param[1]); ++i){
-        for (int j = 0; j < strlen(alfa); ++j){
-            cout << alfaShift[i][j] << " ";
-        }
-        cout << endl;
-    }
-
-    cryptFile(param[0], alfaShift, alfa, strlen(param[1]));
-    //Inizio prova shift
-    /*
-    cout << "Inserire stringa da cifrare:" << endl;
-    char str[30];
-    cin.getline(str, 30);
-    cout << "Stringa inserita: " << str << endl;
-    char *strCrypt = getStringCrypt(str, alfaShift, alfa, strlen(param[1]));
-    cout << "Stringa cifrata: " <<  strCrypt << endl;
-    char *strDecrypt = getStringDecrypt(strCrypt, alfaShift, alfa, strlen(param[1]));
-    cout << "Stringa decifrata: " <<  strDecrypt << endl;
-    */
+    shift(alfaShift, alfa, param[1]);//Generazione alfabeti shiftati
+    cryptFile(param[0], alfaShift, alfa, strlen(param[1])); //Crypt del file
     delete(param);
     return 0;
 }
