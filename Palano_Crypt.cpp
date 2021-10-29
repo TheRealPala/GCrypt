@@ -132,46 +132,6 @@ char* getStringCrypt(char* str, char aShift[][26], char* alfa, int lenkey){
     return cryptStr;
 }
 
-char* getStringDecrypt(char* str, char aShift[][26], char* alfa, int lenkey){
-    char* decryptStr = new char[strlen(str) + 1]; //Salvo la variabile nell'heap per evitare danni con il push/pop;
-    bzero(decryptStr, strlen(str));
-    decryptStr[strlen(decryptStr)] = '\0';
-    int inK = -1;
-    for (int i = 0; i < strlen(str); ++i){ 
-        //Gestione caratteri non contenuti nell'alfabeto
-        if (str[i] == '\n'){
-            decryptStr[i] = '\n';
-        }
-
-        else if (str[i] >= ' ' && str[i] <= '@'){
-            decryptStr[i] = str[i];
-        }
-
-        else if (str[i] >= '[' && str[i] <= 96 /*Il 96 sarebbe l'accento grave */){
-            decryptStr[i] = str[i];
-        }
-
-        else if (str[i] >= '{' && str[i] <= '~'){
-            decryptStr[i] = str[i];
-        }
-        //Gestione caratteri contenuti nell'alfabeto
-        else {
-            inK = (inK + 1) % lenkey; //Calcolo di quale alfabeto shiftato devo utilizzare (dopo l'utilizzo dell'ultmo devo ricominciare con il primo)
-            bool isMin = str[i] >= 'a' && str[i] <= 'z' ? true : false;
-            if (!isMin){ //costrutto per gestire lettere minuscole
-                int index = getIndex(str[i], aShift[inK]); //ottengo il numero dell'alfabeto inKesimo alfabeto criptato della iEsima lettera della stringa da cifrare
-                decryptStr[i] = alfa[index];
-            }
-            else { //i - ' ' ed i + ' ' sono per gestire le lettere minuscole perchè l'alfabeto generato è tutto in maiuscolo (' ' = 32(base 10))
-                int index = getIndex(str[i] - ' ', aShift[inK]); //ottengo il numero dell'alfabeto NORMALE della iEsima lettera della stringa da cifrare
-                decryptStr[i] = alfa[index] + ' ';
-            }
-        }
-    }
-    decryptStr[strlen(str)] = '\0';
-    return decryptStr;
-}
-
 void cryptFile(char* filename, char aShift[][26], char* alfa, int lenkey){
     FILE *f;
     f = fopen(filename, "r");
