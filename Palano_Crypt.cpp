@@ -151,17 +151,21 @@ void cryptFile(char* filename, char aShift[][26], char* alfa, int lenkey){
     bool firstLoop = true;
     while (!feof(f)){
         fgets(tmp, 256, f);
-        char* pt = strchr(tmp, 13); //ELIMINO IL "CR" ed il "LF"
+        char* pt = strchr(tmp, 13); //ELIMINO IL "CR" 
         if (pt){
             *pt = '\0';
         }
-        if (strlen(tmp) > 0){
+         pt = strchr(tmp, 10); //ELIMINO IL "LF"
+        if (pt){
+            *pt = '\0';
+        }
+        //if (strlen(tmp) > 0){
             char* strCrypt = getStringCrypt(tmp, aShift, alfa, lenkey);
             if(firstLoop)
                 fprintf(fCrypt, "%s", strCrypt);
             else
                 fprintf(fCrypt, "\n%s", strCrypt);
-        }
+        //}
         firstLoop = false;
     }
     
