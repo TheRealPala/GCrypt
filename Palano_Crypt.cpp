@@ -167,6 +167,7 @@ void cryptFile(char* filename, char aShift[][26], char* alfa, int lenkey){
                 fprintf(fCrypt, "\n%s", strCrypt);
         //}
         firstLoop = false;
+        delete(strCrypt);
     }
     
     fclose(f);
